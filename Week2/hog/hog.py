@@ -22,7 +22,17 @@ def roll_dice(num_rolls, dice=six_sided):
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+    score = 0
+    exist1 = False
+    while num_rolls > 0:
+        num_rolls = num_rolls - 1
+        current = dice()
+        if current == 1:
+            exist1 = True
+        score = score + current
+    if exist1:
+        score = 1
+    return score
     # END PROBLEM 1
 
 
@@ -36,10 +46,9 @@ def free_bacon(score):
 
     # Trim pi to only (score + 1) digit(s)
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    return pi // (10 ** (100 - score)) % 10 + 3
     # END PROBLEM 2
 
-    return pi % 10 + 3
 
 
 def take_turn(num_rolls, opponent_score, dice=six_sided):
@@ -57,6 +66,10 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    if num_rolls == 0:
+        return free_bacon(opponent_score)
+    else:
+        return roll_dice(num_rolls, dice)
     # END PROBLEM 3
 
 
@@ -79,6 +92,17 @@ def swine_align(player_score, opponent_score):
     """
     # BEGIN PROBLEM 4a
     "*** YOUR CODE HERE ***"
+    if player_score < opponent_score:
+        a, b = opponent_score, player_score
+    else:
+        a, b = player_score, opponent_score
+    if a == 0 or b == 0:
+        return False
+    while a % b != 0:
+        a, b = b, a % b
+    if b >= 10:
+        return True
+    return False
     # END PROBLEM 4a
 
 
@@ -101,6 +125,9 @@ def pig_pass(player_score, opponent_score):
     """
     # BEGIN PROBLEM 4b
     "*** YOUR CODE HERE ***"
+    if player_score < opponent_score and opponent_score - player_score < 3:
+        return True
+    return False
     # END PROBLEM 4b
 
 
@@ -140,6 +167,15 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    strategy = {0: strategy0, 1: strategy1}
+    score = {0: score0, 1: score1}
+    while score[0] < goal and score[1] < goal:
+        score[who] = score[who] + take_turn(strategy[who](score[who], score[other(who)]), score[other(who)], dice)
+        if extra_turn(score[who], score[other(who)]):
+            who = who
+        else:
+            who = other(who)
+    return score[0], score[1]
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
