@@ -175,11 +175,13 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
             who = who
         else:
             who = other(who)
-    return score[0], score[1]
+        score0, score1 = score[0], score[1]
+        say = say(score0, score1)# PROBLEM 6
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
     "*** YOUR CODE HERE ***"
+    
     # END PROBLEM 6
     return score0, score1
 
