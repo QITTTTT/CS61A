@@ -266,6 +266,18 @@ def announce_highest(who, last_score=0, running_high=0):
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    def say(score0, score1):
+        if who == 0:
+            score = score0
+        else:
+            score = score1
+        highest = running_high
+        increase = score - last_score
+        if increase > highest:
+            highest = increase
+            print(increase, "point(s)! The most yet for Player", who)
+        return announce_highest(who, score, highest)
+    return say
     # END PROBLEM 7
 
 
@@ -306,6 +318,12 @@ def make_averaged(original_function, trials_count=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def average(*args):
+        total = 0
+        for i in range(trials_count):
+            total = total + original_function(*args)
+        return total / trials_count
+    return average 
     # END PROBLEM 8
 
 
@@ -320,6 +338,14 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    number = 0
+    highest_score = 0
+       
+    for i in [1, 2, 3, 4, 5, 6, 7 ,8 ,9, 10]:
+        score = make_averaged(roll_dice, trials_count)(i, dice)
+        if score > highest_score:
+            number, highest_score = i, score
+    return number
     # END PROBLEM 9
 
 
@@ -369,7 +395,10 @@ def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    if free_bacon(opponent_score) < cutoff:
+        return num_rolls
+    else:
+        return 0
     # END PROBLEM 10
 
 
@@ -379,7 +408,10 @@ def extra_turn_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    score_0 = free_bacon(opponent_score)
+    if extra_turn(score + score_0, opponent_score) or score_0 >= cutoff:
+        return 0
+    return num_rolls
     # END PROBLEM 11
 
 
