@@ -12,6 +12,8 @@ def couple(s, t):
     """
     assert len(s) == len(t)
     "*** YOUR CODE HERE ***"
+    list = [[s[i], t[i]] for i in range(len(s))]
+    return list
 
 
 from math import sqrt
@@ -27,6 +29,9 @@ def distance(city_a, city_b):
     5.0
     """
     "*** YOUR CODE HERE ***"
+    a_lat, b_lat = get_lat(city_a), get_lat(city_b)
+    a_lon, b_lon = get_lon(city_a), get_lon(city_b)
+    return sqrt((b_lat - a_lat) * (b_lat - a_lat) + (a_lon - b_lon) * (a_lon - b_lon))
 
 def closer_city(lat, lon, city_a, city_b):
     """
@@ -44,6 +49,8 @@ def closer_city(lat, lon, city_a, city_b):
     'Bucharest'
     """
     "*** YOUR CODE HERE ***"
+    city = make_city('City', lat, lon)
+    return get_name(city_a) if distance(city_a, city) < distance(city_b, city) else get_name(city_b)
 
 def check_city_abstraction():
     """
@@ -143,6 +150,20 @@ def berry_finder(t):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_leaf(t):
+        if label(t) == 'berry':
+            return True
+        else:
+            return False
+    else:
+        total = 0
+        for x in branches(t):
+            total += berry_finder(x)
+        if label(t) == 'berry':
+            return True
+        else:
+            return bool(total)
+
 
 
 def sprout_leaves(t, leaves):
@@ -179,6 +200,12 @@ def sprout_leaves(t, leaves):
           2
     """
     "*** YOUR CODE HERE ***"
+    if is_leaf(t):
+        new_branches = [tree(leaf, []) for leaf in leaves]
+        return tree(label(t), new_branches)
+    else:
+        update_branches = [sprout_leaves(branch, leaves) for branch in branches(t)]
+        return tree(label(t), update_branches)
 
 # Abstraction tests for sprout_leaves and berry_finder
 def check_abstraction():
@@ -237,7 +264,7 @@ def coords(fn, seq, lower, upper):
     [[-2, 4], [1, 1], [3, 9]]
     """
     "*** YOUR CODE HERE ***"
-    return ______
+    return [[x, x**2] for x in seq if x**2 >= lower and x**2 <= upper]
 
 
 def riffle(deck):
@@ -250,7 +277,7 @@ def riffle(deck):
     [0, 10, 1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17, 8, 18, 9, 19]
     """
     "*** YOUR CODE HERE ***"
-    return _______
+    return [deck[i // 2 + (i % 2) * len(deck) // 2] for i in range(len(deck))]
 
 
 def add_trees(t1, t2):
@@ -289,7 +316,17 @@ def add_trees(t1, t2):
       5
     """
     "*** YOUR CODE HERE ***"
-
+    if is_leaf(t1) and is_leaf(t2):
+        return tree(label(t1) + label(t2))
+    else:
+        t1_branches = branches(t1) if not is_leaf(t1) else []
+        t2_branches = branches(t2) if not is_leaf(t2) else []
+        while len(t1_branches) < len(t2_branches):
+            t1_branches.append(tree(0))
+        while len(t2_branches) < len(t1_branches):
+            t2_branches.append(tree(0))
+        return tree(label(t1) + label(t2), [add_trees(tree1, tree2) for tree1, tree2 in zip(t1_branches, t2_branches)])
+    
 
 def build_successors_table(tokens):
     """Return a dictionary: keys are words; values are lists of successors.
@@ -310,7 +347,9 @@ def build_successors_table(tokens):
     for word in tokens:
         if prev not in table:
             "*** YOUR CODE HERE ***"
-        "*** YOUR CODE HERE ***"
+            table.update({prev: [word]})
+        else:
+            table[prev].append(word)
         prev = word
     return table
 
@@ -327,7 +366,9 @@ def construct_sent(word, table):
     import random
     result = ''
     while word not in ['.', '!', '?']:
-        "*** YOUR CODE HERE ***"
+        new_word = random.choice(table[word])
+        result = result + word + ' '
+        word = new_word
     return result.strip() + word
 
 def shakespeare_tokens(path='shakespeare.txt', url='http://composingprograms.com/shakespeare.txt'):
