@@ -44,11 +44,13 @@ def planet(size):
     """Construct a planet of some size."""
     assert size > 0
     "*** YOUR CODE HERE ***"
+    return ['planet', size]
 
 def size(w):
     """Select the size of a planet."""
     assert is_planet(w), 'must call size on a planet'
     "*** YOUR CODE HERE ***"
+    return w[1]
 
 def is_planet(w):
     """Whether w is a planet."""
@@ -105,6 +107,16 @@ def balanced(m):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_planet(m):
+        return True
+    else:
+        left_balanced, right_balanced = balanced(end(left(m))), balanced(end(right(m)))
+        left_torque = length(left(m)) * total_weight(end(left(m)))
+        right_torque = length(right(m)) * total_weight(end(right(m)))
+        if left_torque == right_torque:
+            return left_balanced and right_balanced and True
+        else:
+            return False
 
 def totals_tree(m):
     """Return a tree representing the mobile with its total weight at the root.
@@ -136,7 +148,12 @@ def totals_tree(m):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    if is_planet(m):
+        return tree(total_weight(m))
+    else:
+        left_branch, right_branch = totals_tree(end(left(m))), totals_tree(end(right(m)))
+        t_label = total_weight(end(left(m))) + total_weight(end(right(m)))
+        return tree(t_label, [left_branch, right_branch])
 
 def replace_leaf(t, find_value, replace_value):
     """Returns a new tree where every leaf value equal to find_value has
@@ -168,7 +185,16 @@ def replace_leaf(t, find_value, replace_value):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    if is_leaf(t):
+        if label(t) == find_value:
+            return tree(replace_value)
+        else:
+            return t
+    else:
+        new_branches = []
+        for branch in branches(t):
+            new_branches.append(replace_leaf(branch, find_value, replace_value))
+        return tree(label(t), new_branches)
 
 def preorder(t):
     """Return a list of the entries in this tree in the order that they
@@ -181,6 +207,13 @@ def preorder(t):
     [2, 4, 6]
     """
     "*** YOUR CODE HERE ***"
+    list = []
+    def preorder_helper(t):
+        list.append(label(t))
+        for branch in branches(t):
+            list.extend(preorder(branch))
+        return list
+    return preorder_helper(t)
 
 
 def has_path(t, word):
@@ -213,6 +246,13 @@ def has_path(t, word):
     """
     assert len(word) > 0, 'no path for empty word.'
     "*** YOUR CODE HERE ***"
+    if len(word) == 1:
+        return word == label(t)
+    else:
+        if word[0] != label(t):
+            return False
+        else:
+            return any([has_path(branch, word[1:]) for branch in branches(t)])
 
 
 def interval(a, b):
@@ -222,10 +262,12 @@ def interval(a, b):
 def lower_bound(x):
     """Return the lower bound of interval x."""
     "*** YOUR CODE HERE ***"
+    return x[0]
 
 def upper_bound(x):
     """Return the upper bound of interval x."""
     "*** YOUR CODE HERE ***"
+    return x[1]
 def str_interval(x):
     """Return a string representation of interval x.
     """
@@ -240,17 +282,20 @@ def add_interval(x, y):
 def mul_interval(x, y):
     """Return the interval that contains the product of any value in x and any
     value in y."""
-    p1 = x[0] * y[0]
-    p2 = x[0] * y[1]
-    p3 = x[1] * y[0]
-    p4 = x[1] * y[1]
-    return [min(p1, p2, p3, p4), max(p1, p2, p3, p4)]
+    p1 = lower_bound(x) * lower_bound(y)
+    p2 = lower_bound(x) * upper_bound(y)
+    p3 = upper_bound(x) * lower_bound(y)
+    p4 = upper_bound(x) * upper_bound(y)
+    return interval(min(p1, p2, p3, p4), max(p1, p2, p3, p4))
 
 
 def sub_interval(x, y):
     """Return the interval that contains the difference between any value in x
     and any value in y."""
     "*** YOUR CODE HERE ***"
+    start = lower_bound(x) - upper_bound(y)
+    end = upper_bound(x) - lower_bound(y)
+    return interval(min(start, end), max(start, end))
 
 
 def div_interval(x, y):
@@ -258,6 +303,7 @@ def div_interval(x, y):
     any value in y. Division is implemented as the multiplication of x by the
     reciprocal of y."""
     "*** YOUR CODE HERE ***"
+    assert upper_bound(y) * lower_bound(y) > 0
     reciprocal_y = interval(1/upper_bound(y), 1/lower_bound(y))
     return mul_interval(x, reciprocal_y)
 
@@ -279,8 +325,8 @@ def check_par():
     >>> lower_bound(x) != lower_bound(y) or upper_bound(x) != upper_bound(y)
     True
     """
-    r1 = interval(1, 1) # Replace this line!
-    r2 = interval(1, 1) # Replace this line!
+    r1 = interval(2, 4) # Replace this line!
+    r2 = interval(3, 5) # Replace this line!
     return r1, r2
 
 
@@ -298,7 +344,18 @@ def quadratic(x, a, b, c):
     '0 to 10'
     """
     "*** YOUR CODE HERE ***"
-
+    extreme_point, lower, upper = - b / (2 * a), 0, 0
+    if extreme_point > lower_bound(x) and extreme_point < upper_bound(x):
+        if a > 0:
+            lower = a * pow(extreme_point, 2) + b * extreme_point + c
+            upper = max(a * pow(lower_bound(x), 2) + b * lower_bound(x) + c, a * pow(upper_bound(x), 2) + b * upper_bound(x) + c)
+        else:
+            upper = a * pow(extreme_point, 2) + b * extreme_point + c
+            lower = min(a * pow(lower_bound(x), 2) + b * lower_bound(x) + c, a * pow(upper_bound(x), 2) + b * upper_bound(x) + c)
+    else:
+        upper = max(a * pow(lower_bound(x), 2) + b * lower_bound(x) + c, a * pow(upper_bound(x), 2) + b * upper_bound(x) + c)
+        lower = min(a * pow(lower_bound(x), 2) + b * lower_bound(x) + c, a * pow(upper_bound(x), 2) + b * upper_bound(x) + c)
+    return interval(lower, upper)
 
 
 # Tree ADT
