@@ -347,12 +347,19 @@ class QueenAnt(ScubaThrower):  # You should change this line
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem EC
     implemented = True   # Change to True to view in the GUI
+    already = False
+    buffed = []
     # END Problem EC
 
     def __init__(self, armor=1):
         # BEGIN Problem EC
         "*** YOUR CODE HERE ***"
-        Ant.__init__(self, armor)
+        if QueenAnt.already:
+            self.true = False
+        else:
+            self.true = True
+            QueenAnt.already = True 
+        ScubaThrower.__init__(self, armor)
         # END Problem EC
 
     def action(self, gamestate):
@@ -363,6 +370,16 @@ class QueenAnt(ScubaThrower):  # You should change this line
         """
         # BEGIN Problem EC
         "*** YOUR CODE HERE ***"
+        if self.true:
+            ScubaThrower.action(self, gamestate)
+            place = self.place.exit
+            while place != None:
+                if place.ant and place.ant != 'Fire' and place.ant not in self.buffed:
+                    place.ant.damage = place.ant.damage * 2
+                    self.buffed.append(place.ant)
+                place = place.exit
+        else:
+            self.reduce_armor(self.armor)
         # END Problem EC
 
     def reduce_armor(self, amount):
@@ -371,6 +388,24 @@ class QueenAnt(ScubaThrower):  # You should change this line
         """
         # BEGIN Problem EC
         "*** YOUR CODE HERE ***"
+        self.armor -= amount
+        if self.armor <= 0:
+            if self.true:
+                bees_win()
+            else:
+                self.place.remove_insect(self)
+                self.death_callback()
+
+    def remove_from(self, place):
+        if not self.true:
+            if place.ant is self:
+                place.ant = None
+            elif place.ant is None:
+                assert False, '{0} is not in {1}'.format(self, place)
+            else:
+                # queen or container (optional) or other situation
+                place.ant.remove_ant(self)
+            Insect.remove_from(self, place)
         # END Problem EC
 
 
