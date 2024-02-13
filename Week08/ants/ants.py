@@ -686,6 +686,7 @@ class LaserAnt(ThrowerAnt):
 
     name = 'Laser'
     food_cost = 10
+    damage = 2
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem Optional 5
     implemented = True   # Change to True to view in the GUI
@@ -716,7 +717,7 @@ class LaserAnt(ThrowerAnt):
 
     def calculate_damage(self, distance):
         # BEGIN Problem Optional 5
-        damage = (2 - 0.2 * distance) - 0.05 * self.insects_shot
+        damage = (self.damage - 0.2 * distance) - 0.05 * self.insects_shot
         if damage < 0:
             damage = 0
         return damage
