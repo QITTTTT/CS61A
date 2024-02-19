@@ -8,7 +8,11 @@ def convert_link(link):
     []
     """
     "*** YOUR CODE HERE ***"
-
+    result = []
+    while link != Link.empty:
+        result.append(link.first)
+        link = link.rest
+    return result
 
 def every_other(s):
     """Mutates a linked list so that all the odd-indiced elements are removed
@@ -28,7 +32,16 @@ def every_other(s):
     Link(4)
     """
     "*** YOUR CODE HERE ***"
-
+    index = 1
+    p = s.rest
+    while p != Link.empty:
+        if index % 2 != 0:
+            s.rest = p.rest
+            p = s.rest
+            index += 1
+        else:
+            s, p = s.rest, p.rest
+            index += 1
 
 def cumulative_mul(t):
     """Mutates t so that each node's label becomes the product of all labels in
@@ -40,6 +53,13 @@ def cumulative_mul(t):
     Tree(105, [Tree(15, [Tree(5)]), Tree(7)])
     """
     "*** YOUR CODE HERE ***"
+    if t.is_leaf():
+        return
+    else:
+        for branch in t.branches:
+            cumulative_mul(branch)    
+            t.label *= branch.label
+
 
 
 def has_cycle(link):
@@ -57,6 +77,13 @@ def has_cycle(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    p = link.rest
+    while p != Link.empty and p != link:
+        p = p.rest
+    if p == Link.empty:
+        return False
+    else:
+        return True
 
 def has_cycle_constant(link):
     """Return whether link contains a cycle.
@@ -70,6 +97,13 @@ def has_cycle_constant(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    p = link.rest
+    while p != Link.empty and p != link:
+        p = p.rest
+    if p == Link.empty:
+        return False
+    else:
+        return True
 
 
 def reverse_other(t):
@@ -86,6 +120,19 @@ def reverse_other(t):
     Tree(1, [Tree(8, [Tree(3, [Tree(5), Tree(4)]), Tree(6, [Tree(7)])]), Tree(2)])
     """
     "*** YOUR CODE HERE ***"
+    def reverse_other_helper(t, level):
+        if t.is_leaf():
+            return 
+        else:
+            if level % 2 == 0:
+                branches_number = len(t.branches)
+                for i in range(branches_number // 2):
+                    temp = t.branches[i].label
+                    t.branches[i].label = t.branches[branches_number - 1 - i].label
+                    t.branches[branches_number - i - 1].label = temp
+            for branch in t.branches:
+                reverse_other_helper(branch, level + 1)
+    reverse_other_helper(t, 0)
 
 
 class Link:
